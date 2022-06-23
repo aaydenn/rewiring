@@ -7,6 +7,7 @@
 #' @param returnJGL logical, whether return the JGL model results. default is F.
 #' @return a list of 1) a vector of tuning parameter values and the AIC value; 2) the JGL result object
 #' @export
+
 AIC_select <- function(mat.list.t.gau, lam1 = 0.1, lam2 = 0.1, returnJGL = F){
   res.S <- lapply(mat.list.t.gau, cov)
   res.jgl <- JGL::JGL(mat.list.t.gau, lambda1 = lam1, lambda2 = lam2, return.whole.theta = T)

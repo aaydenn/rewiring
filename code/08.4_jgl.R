@@ -6,16 +6,20 @@ load("Data/mouse-data-features.RData")
 load("Data/DE_miRNAs.RData")
 source("Code/tuning_parameter.R")
 
-# modify diet column of features
-features$diet <-
-  ifelse(features$diet %in% c("ICRR","ICRRF"),  "ICR", features$diet)
-
-mouse.Data |> # filter miRNAs according to DE miRNAs not in Brain
-  as.data.frame() |>
-  filter(rownames(mouse.Data) %in% c(DE.blood, DE.mfp)) |> t() -> arrays
 
 # colnames(arrays) <- str_remove(colnames(arrays), "mmu-")
 colnames(features) <- c("diet", "age", "tissue", "array.design")
+
+# modify diet column of features
+features$diet <-
+  ifelse(features$diet %in% c("ICRR","ICRRF"),  
+         "ICR", 
+         features$diet)
+
+mouse.Data |> # filter miRNAs according to DE miRNAs not in Brain
+  as.data.frame() |>
+  filter(rownames(mouse.Data) %in% c(DE.blood, DE.mfp)) |> 
+  t() -> arrays
 
 
 # function for network comparison of diets for given tissue
