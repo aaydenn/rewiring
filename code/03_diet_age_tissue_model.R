@@ -2,14 +2,24 @@
 library(limma)
 library(stringr)
 
-# load("Data/norm-data-features.RData")
-load("Data/mouse-data-features.RData")
-# we decided to merge ICRR and ICRRF 
+## TODO: drop Brain
+
+# input
+MOUSE_DATA <- "Data/mouse-data-features.RData"
+
+# output
+FITTED_FILE <- "fit.eb.RData"
+
+# read `mouse.Data`, `features`, `mouse_4.1`
+load(MOUSE_DATA)
+
+# we merge ICRR and ICRRF 
 # we ignore one week refeed of mice
 features$diet[features$diet=="ICRR"]  <- "ICR"
 features$diet[features$diet=="ICRRF"] <- "ICR"
 features$diet <- as.factor(features$diet)
 features$diet <- relevel(features$diet, ref="BASELINE")
+
 # this is a table to translate probe_id to miRNA id
 # TODO: data is already in `mouse_4.1`. This can be simplified
 ## library(miRBaseConverter)
@@ -77,4 +87,4 @@ fit.cont <- contrasts.fit(fit, contrasts)
 fit.eb <- eBayes(fit.cont)
 
 # `fit.eb` contains all the results we care
-save(fit.eb, file = "fit.eb.RData")
+save(fit.eb, file = FITTED_FILE)
