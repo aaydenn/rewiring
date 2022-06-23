@@ -10,11 +10,11 @@
 
 01_cancer_rate.R
 : IN: `samplelist.tsv`.
-: Out: Plot of breast cancer rate given diet, given age:diet and combinig ICR
+: Out: Plot of breast cancer rate given diet, given age:diet and combining ICR
 
 02_read_and_normalize.R
 : in: `intermitent_sdrf_new.tsv`+ array data in cel format.
-: This is the file we developped together in July 2021
+: This is the file we developed together in July 2021
 : Out: `full.Data` with raw expressions, `norm.Data` with normalized expr, `mouse.Data` with normalized data for mouse only. All `RData` files have the same `features` table.
 
 03_diet_age_tissue_model.R
@@ -37,7 +37,7 @@
 
 06_count_DE.R
 : Input is `fit.eb`.
-: List of topTable for each contrast. Count nrow on each.
+: List of topTable for each contrast. Count number of rows on each.
 : Out: `DE.table` (list of data frames, one for each contrast), `DE.number` (nrow for each data frame), `gnames` (list of vectors, with names of each DE miRNA in each condition), `gnames.unique` (vector of miRNA names, combining all `genomes`)
 
 07_venn_table.R
