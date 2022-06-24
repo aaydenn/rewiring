@@ -19,9 +19,10 @@ ANNOTATION_FILE <- paste(DATA_FOLDER,
 #    + features
 #    + mouse_4.1
 
-FULL_DATA <- "Data/full.Data.RData"
-NORM_DATA <- "Data/norm-data-features.RData"
-MOUSE_DATA <- "Data/mouse-data-features.RData"
+RESULT_FOLDER <- "Data"
+FULL_DATA  <- paste(RESULT_FOLDER, "full.Data.RData", sep = "/")
+NORM_DATA  <- paste(RESULT_FOLDER, "norm-data-features.RData", sep = "/")
+MOUSE_DATA <- paste(RESULT_FOLDER, "mouse-data-features.RData", sep = "/")
 
 library(oligo, warn.conflicts = FALSE)
 library(pd.mirna.4.0, warn.conflicts = FALSE)
@@ -87,6 +88,13 @@ ff |> filter(array.design=="miRNA_4_0") |>
 features <- rbind(features1, features0)
 colnames(features) <- c("diet", "age", "tissue")
 
+# we merge ICRR and ICRRF 
+# we ignore one week refeed of mice
+features$diet[features$diet=="ICRR"]  <- "ICR"
+features$diet[features$diet=="ICRRF"] <- "ICR"
+features$diet <- as.factor(features$diet)
+features$diet <- relevel(features$diet, ref="BASELINE")
+
 annot_4.1 |> filter(`Species Scientific Name`=="Mus musculus", 
                     str_starts(Accession,"MIMAT")) -> mouse_4.1
 
@@ -100,6 +108,17 @@ colnames(mouse.Data) |>
 # change some names for consistency
 colnames(mouse.Data)[colnames(mouse.Data) =="T71Blood"] <- "ICRR_T71_Blood_w80"
 colnames(mouse.Data)[colnames(mouse.Data) =="T25W80Blood"] <- "ICRRF_T25_Blood_w80"
+
+# this is a table to translate probe_id to miRNA id
+# TODO: data is already in `mouse_4.1`. This can be simplified
+## library(miRBaseConverter)
+## miRNAid <- miRNA_AccessionToName(mouse_4.1$Accession,
+##                                  targetVersion = "v22")
+## no_name <- is.na(miRNAid$TargetName)
+## miRNAid$TargetName[no_name] <- miRNAid$Accession[no_name]
+## rownames(mouse.Data) <- str_remove(miRNAid$TargetName, "mmu-") 
+rownames(mouse.Data) <- mouse_4.1$`Transcript ID(Array Design)`
+
 
 # save data for further use
 save(mouse.Data, features, mouse_4.1, file = MOUSE_DATA)

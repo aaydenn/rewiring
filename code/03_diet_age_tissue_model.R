@@ -5,30 +5,13 @@ library(stringr)
 ## TODO: drop Brain
 
 # input
-MOUSE_DATA <- "Data/mouse-data-features.RData"
+MOUSE_DATA <- paste(RESULT_FOLDER, "mouse-data-features.RData", sep = "/")
 
 # output
 FITTED_FILE <- "fit.eb.RData"
 
 # read `mouse.Data`, `features`, `mouse_4.1`
 load(MOUSE_DATA)
-
-# we merge ICRR and ICRRF 
-# we ignore one week refeed of mice
-features$diet[features$diet=="ICRR"]  <- "ICR"
-features$diet[features$diet=="ICRRF"] <- "ICR"
-features$diet <- as.factor(features$diet)
-features$diet <- relevel(features$diet, ref="BASELINE")
-
-# this is a table to translate probe_id to miRNA id
-# TODO: data is already in `mouse_4.1`. This can be simplified
-## library(miRBaseConverter)
-## miRNAid <- miRNA_AccessionToName(mouse_4.1$Accession,
-##                                  targetVersion = "v22")
-## no_name <- is.na(miRNAid$TargetName)
-## miRNAid$TargetName[no_name] <- miRNAid$Accession[no_name]
-## rownames(mouse.Data) <- str_remove(miRNAid$TargetName, "mmu-") 
-rownames(mouse.Data) <- mouse_4.1$`Transcript ID(Array Design)`
 
 # Evaluate absolute expression for each diet:age:tissue
 # design <- model.matrix(~ 0 + diet:age:tissue, data = features)
@@ -41,8 +24,8 @@ colnames(design) |>
   str_remove("diet") |>
   str_remove("tissue") |>
   str_remove("age") |> 
-  str_replace_all("/",".") |> 
-  str_replace_all(":",".") -> colnames(design)
+  str_replace_all("/", ".") |> 
+  str_replace_all(":", ".") -> colnames(design)
 # now we have `design`
 
 # we fit our normalized expression data to our design
