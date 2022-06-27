@@ -1,33 +1,46 @@
 # Principle Component Analysis
+
 library(Biobase)
+
+FULL_DATA <- "Data/full.Data.RData"
+
 #####
 # use full data (unfiltered) for pca
 #####
-load("Data/full.Data.RData")
-windowsFonts(Times=windowsFont("Times New Roman"))
+load(FULL_DATA)
+
+windowsFonts(Times = windowsFont("Times New Roman"))
+
 # Before normalizing ####
-## expression data is commonly analyzed 
+## expression data is commonly analyzed
 ## on a logarithmic scale (log2 of full.Data)
 exp_raw0 <- log2(Biobase::exprs(full.Data))
 
 pData(full.Data) <- cbind(pData(full.Data), features)
 rownames(features) <- colnames(exp_raw0)
-keep <- features[features$tissue!="Brain",]
 
-exp_raw <- exp_raw0[,rownames(keep)]
-p_data0 <- pData(full.Data)[pData(full.Data)$tissue != "Brain",]
-p_data <- mutate(p_data0, diet = ifelse(diet == "ICRR" | diet == "ICRRF", "ICR", diet))
+## ignore brain data
+keep <- features[features$tissue != "Brain", ]
+exp_raw <- exp_raw0[, rownames(keep)]
+
+p_data0 <- pData(full.Data)[pData(full.Data)$tissue != "Brain", ]
+
+# TODO: fix diet names earlier
+p_data <- mutate(p_data0,
+    diet = ifelse(diet == "ICRR" | diet == "ICRRF", "ICR", diet))
+
 ## calculate principal components
 PCAraw <- prcomp(t(exp_raw), scale. = FALSE)
-percentVarRaw <- round(100*PCAraw$sdev^2/sum(PCAraw$sdev^2),1)
+percentVarRaw <- round(100 * PCAraw$sdev^2 / sum(PCAraw$sdev^2), 1)
 sd_ratio_raw <- sqrt(percentVarRaw[2] / percentVarRaw[1])
+
 # data frame for ggplot aesthetics
-dataGGraw <- data.frame(PC1 = PCAraw$x[,1], 
-                        PC2 = PCAraw$x[,2], 
+dataGGraw <- data.frame(PC1 = PCAraw$x[,1],
+                        PC2 = PCAraw$x[,2],
                         Tissue = p_data$tissue,
                         Diet = p_data$diet)
 # make the 2d plot of components
-p <- ggplot(dataGGraw, aes(PC1, PC2, size = 10)) + 
+p <- ggplot(dataGGraw, aes(PC1, PC2, size = 10)) +
   geom_point(aes(colour = Tissue,
                  shape  = Diet)) +
   xlab(paste0("PC1, VarExp: ", percentVarRaw[1], "%")) +
