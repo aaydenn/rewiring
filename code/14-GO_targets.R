@@ -1,57 +1,155 @@
 library(dplyr)
-library(biomaRt)
+library(circlize)
 
-load("Data/d.fgl.RData")
-load("Data/targets.Rdata")
+load("result/jgl.RData")
+load("result/targets.Rdata")
+load("data/go_kegg_list.RData")
 
-delta.centrality <- lapply(list(
-  CCR.Blood = d.fgl$CCR$Blood$d.centrality,
-  ICR.Blood = d.fgl$ICR$Blood$d.centrality,
-  CCR.MFP = d.fgl$CCR$MFP$d.centrality,
-  ICR.MFP = d.fgl$ICR$MFP$d.centrality
-), function(x)
-  x |> mutate(hub = ifelse(knn < degree, 1, 0)) |> dplyr::filter(hub == 1))
+#' -----------------------------------
+#' @title get KEGG terms of hub miRNAs
+#' @description hub mirna enrichment of kegg terms. 
+#' miRNAs with degree higher than knn
+#' is considered hub
 
-eigen.targets <-
-  lapply(delta.centrality, function(x)
-    targets.unique |> dplyr::filter(mirna %in% (x[x$hub == 1,]$miRNA)))
 
-# openxlsx::write.xlsx(eigen.targets, "Results/eigen.targets.xlsx")
+symbol2mir_id <- split(targets.unique$mirna,targets.unique$symbol)
+symbol_in_any_kegg <- KEGG.list.filtered |> unlist() |> unique()
+num_mirna_total <- symbol2mir_id[symbol_in_any_kegg] |> unlist() |> unique() |> length()
 
-eigen.count <- lapply(eigen.targets, function(x) x |> count(symbol) |> arrange(desc(n)) |> dplyr::filter(n>1))
+eval_pathway <- function(pw_genes, DE_mirna, symbol2mir_id, num_mirna_total) {
+  pw_mirna <- unique(unlist(symbol2mir_id[pw_genes]))
+  k <- length(pw_mirna)
+  q <- length(intersect(pw_mirna, DE_mirna))
+  m <- length(unique(DE_mirna))
+  n <- num_mirna_total - m
+  p <- phyper(q, m, n, k, lower.tail = FALSE)
+  return(c(p.val=p, pw.size=k, de.in.pw=q))
+}
 
-go <-
-  read_delim(
-    file = "Data/Databases/gene_association.mgi",
-    delim = "\t",
-    comment = "!",
-    na = "",
-    col_names = c(
-      "Database Designation",
-      "MGI Marker Accession ID",
-      "Mouse Marker Symbol",
-      "NOT Designation",
-      "GO Term ID",
-      "MGI Reference Accession ID",
-      "GO Evidence Code",
-      "Inferred From",
-      "Ontology",
-      "Mouse Marker Name",
-      "Mouse Marker Synonyms (if any)",
-      "Mouse Marker Type (gene, transcript, protein)",
-      "Taxon",
-      "Modification Date",
-      "Assigned By",
-      "Annotation Extension",	"Gene Product"))
+pwenrich <- function(DE_mirna) {
+  KEGG.list.filtered |> 
+    sapply(eval_pathway, DE_mirna, symbol2mir_id, num_mirna_total) |> 
+    t() |> 
+    as.data.frame() -> ans
+  ans$term <- names(KEGG.list.filtered)
+  ans$adj.p.val <- p.adjust(ans$p.val, method = "fdr")
+  ans <- ans[order(ans$adj.p.val),]
+  return(dplyr::select(ans, term, pw.size, de.in.pw, p.val, adj.p.val))
+}
 
-goterm <-
-  read_delim(
-    file = "Data/Databases/go_terms.mgi",
-    delim = "\t",
-    col_names = c("Ontology", "GO Term ID", "GO Term")
-  )
 
-eigen.go <-
-  lapply(eigen.count, function(x)
-    go |> dplyr::filter(`Mouse Marker Symbol` %in% x$symbol) |> dplyr::select(`Mouse Marker Symbol`, `GO Term ID`))
+theta.hub <- lapply(theta.centrality, function(x) x |> filter(hub == 1))
+
+delta.hub <- lapply(delta.centrality, function(x) x |> filter(hub == 1))
+
+
+
+theta.kegg <- lapply(theta.hub, function(x) {pwenrich(x$miRNA) |> filter(p.val != 0)})
+
+openxlsx::write.xlsx(theta.kegg, file = "tables/theta.kegg.xlsx")
+
+
+
+delta.kegg <- lapply(delta.hub, function(x) pwenrich(x$miRNA) |> filter(p.val != 0))
+
+openxlsx::write.xlsx(delta.kegg, file = "tables/delta.kegg.xlsx")
+
+
+
+save(theta.kegg,delta.kegg,file = "result/kegg.enrichment.RData")
+
+#' -----------------------------------
+#' @title get KEGG terms of hub miRNAs
+#' @description hub mirna enrichment of go terms. 
+#' miRNAs with degree higher than knn
+#' is considered hub
+
+
+eval_go <- function(go_genes, DE_mirna, symbol2mir_id, num_mirna_total) {
+  pw_mirna <- unique(unlist(symbol2mir_id[go_genes]))
+  k <- length(pw_mirna)
+  q <- length(intersect(pw_mirna, DE_mirna))
+  m <- length(unique(DE_mirna))
+  n <- num_mirna_total - m
+  p <- phyper(q, m, n, k, lower.tail = FALSE)
+  return(c(p.val=p, pw.size=k, de.in.pw=q))
+}
+
+goenrich <- function(DE_mirna) {
+  GO.list.BP |> 
+    sapply(eval_go, DE_mirna, symbol2mir_id, num_mirna_total) |> 
+    t() |> 
+    as.data.frame() -> ans
+  ans$GO_Term <- names(GO.list.BP)
+  ans$adj.p.val <- p.adjust(ans$p.val, method = "fdr")
+  ans <- ans[order(ans$adj.p.val),]
+  return(dplyr::select(ans, GO_Term, pw.size, de.in.pw, p.val, adj.p.val))
+}
+
+
+
+
+theta.go <- lapply(theta.hub, function(x) {goenrich(x$miRNA) |> filter(p.val != 0)})
+
+openxlsx::write.xlsx(theta.go, file = "tables/theta.go.xlsx")
+
+
+
+
+delta.go <- lapply(delta.hub, function(x) {goenrich(x$miRNA) |> filter(p.val != 0)})
+
+openxlsx::write.xlsx(delta.go, file = "tables/delta.go.xlsx")
+
+
+
+
+save(theta.go, delta.go, file = "result/go.enrichment.RData")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# filter genes targeted more than 1
+# 90% = 2  95% = 2 100% = 5 
+
+hub.count <- lapply(hub.targets, function(x)
+  x |> 
+    count(symbol) |> 
+    arrange(desc(n)) |> 
+    dplyr::filter(n > 2))
+
+
+# get annotations of frequent target genes
+
+hub.go <- lapply(hub.count, function(x)
+  GO |> 
+    dplyr::filter(Mouse_Marker_Symbol %in% x$symbol) |> 
+    dplyr::select(Mouse_Marker_Symbol, GO_Term_ID, GO_Term, Ontology) |> 
+    distinct() |> 
+    filter(Ontology == "BP"))
+
+go.count <- 
+  lapply(hub.go, function(x)
+    x |> count(GO_Term_ID) |>
+      filter(n > 1))
+
+go.table <-
+  lapply(setNames(names(hub.go), names(hub.go)), function(x)
+    hub.go[[x]] |>
+      filter(GO_Term_ID %in% go.count[[x]]$GO_Term_ID) |>
+      with(table(GO_Term_ID, Mouse_Marker_Symbol)))
+
+
 

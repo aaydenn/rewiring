@@ -3,7 +3,7 @@ library(graphite)
 library(pbapply)
 library(ggrepel)
 
-load("Data/d.fgl.RData")
+# load("Data/d.fgl.RData")
 load("Data/targets.Rdata")
 # load("Data/miRNA_influence.RData")
 
@@ -51,7 +51,7 @@ mir2pw <- function(mir_graph, targets, pw, directed = TRUE) {
   return(list(net = g2, score = score))
 }
 
-all_pathways <- lapply(deltagraphs, function(mir_graph) pblapply(pwkegg,
+all_pathways <- lapply(delta.graphs, function(mir_graph) pblapply(pwkegg,
                          function(pw) mir2pw(mir_graph, targets, pw)))
 
 centralitykegg <- lapply(all_pathways, function(mir_graph) sapply(mir_graph,

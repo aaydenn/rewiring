@@ -1,14 +1,15 @@
 library(dplyr)
 library(igraph)
 
-theta <- 
-  list(
-    Blood.AL = ans$jgl.res$theta$Blood$AL,
-    Blood.CCR = ans$jgl.res$theta$Blood$CCR,
-    Blood.ICR = ans$jgl.res$theta$Blood$ICR,
-    MFP.AL = ans$jgl.res$theta$MFP$AL,
-    MFP.CCR = ans$jgl.res$theta$MFP$CCR,
-    MFP.ICR = ans$jgl.res$theta$MFP$ICR
+load("G:/Drive'ım/CR-miRNA/Results/2022-06-27-jgl-optimal.Rdata")
+
+theta <- list(
+    Blood.AL = ans2$jgl.res$theta$`Blood AL`,
+    Blood.CCR = ans2$jgl.res$theta$`Blood CCR`,
+    Blood.ICR = ans2$jgl.res$theta$`Blood ICR`,
+    MFP.AL = ans2$jgl.res$theta$`MFP AL`,
+    MFP.CCR = ans2$jgl.res$theta$`MFP CCR`,
+    MFP.ICR = ans2$jgl.res$theta$`MFP ICR`
   )
 
 make.graph <- function(x) {
@@ -27,47 +28,33 @@ make.graph <- function(x) {
 theta.graphs <- lapply(theta, make.graph)
 
 #' ------------------------------------------
-#' Function for differential adjecency matrix
+#' Function for differential adjacency matrix
 
-diffnet <- function(theta1, theta2) {
+diffmat <- function(theta1, theta2) {
+  G1 <- (abs(theta1) > 1e-5) * 1
+  G2 <- (abs(theta2) > 1e-5) * 1
+  G <- abs(G2-G1)
   
-  m <- n <- ncol(theta1)
+  colnames(G) <- rownames(G) <- rownames(theta1)
   
-  mat <- matrix(0, m, n)
-  
-  for (i in 1:m) {
-    for (j in 1:n) {
-      if (theta1[i, j] == theta2[i, j]) {
-        mat[i, j] = 0
-      }
-      if (abs(theta1[i, j]) > 0 &
-          abs(theta2[i, j]) > 0) {
-        mat[i, j] = 0
-      }
-      if (abs(theta2[i, j]) > 0 &
-          theta1[i, j] == 0) {
-        mat[i, j] = 1
-      }
-      if (theta2[i, j] == 0 &
-          abs(theta1[i, j]) > 0) {
-        mat[i, j] = 1
-      }
-    }
-  }
-  
-  colnames(mat) <- rownames(mat) <- rownames(theta1)
-  
-  return(mat)
+  return(G)
   
 }
 
 # 1="ICR", 2="CCR", 3="AL"
 
-delta <- 
-  list(
-    D.Blood.CCR.AL = diffnet(theta$Blood.CCR, theta$Blood.AL),
-    D.Blood.ICR.AL = diffnet(theta$Blood.ICR, theta$Blood.AL),
-    D.Blood.ICR.CCR = diffnet(theta$Blood.ICR, theta$Blood.CCR)
+delta <- list(
+  D.Blood.CCR.AL = diffmat(theta$Blood.CCR, theta$Blood.AL),
+  D.Blood.ICR.AL = diffmat(theta$Blood.ICR, theta$Blood.AL),
+  D.Blood.ICR.CCR = diffmat(theta$Blood.ICR, theta$Blood.CCR)
+  ,
+  D.MFP.CCR.AL = diffmat(theta$MFP.CCR, theta$MFP.AL),
+  D.MFP.ICR.AL = diffmat(theta$MFP.ICR, theta$MFP.AL),
+  D.MFP.ICR.CCR = diffmat(theta$MFP.ICR, theta$MFP.AL)
+  ,
+  D.AL.MFP.Blood = diffmat(theta$MFP.AL,theta$Blood.AL),
+  D.CCR.MFP.Blood = diffmat(theta$MFP.CCR,theta$Blood.CCR),
+  D.ICR.MFP.Blood = diffmat(theta$MFP.ICR,theta$Blood.ICR)
   )
 
 
@@ -84,13 +71,43 @@ centrality.table <- function(net) { # function for centrality measures for given
     arrange(desc(eigen))
 }
 
+topology.table <- function(net) { # function for global topology measures for given network
+  data.frame(edge = length(E(net)), 
+         node = length(V(net)), 
+         clustering.coef = transitivity(net),
+         density = edge_density(net))
+}
+
+
 theta.centrality <- lapply(theta.graphs, centrality.table)
+
+openxlsx::write.xlsx(theta.centrality,file = "tables/theta.centrality.xlsx")
+
+
+theta.topology <- lapply(theta.graphs, topology.table)
+
+do.call(rbind,theta.topology) |> 
+  rownames_to_column("condition") |> 
+  write_delim(file = "tables/theta.topology.tsv")
+
+
+
+
 delta.centrality <- lapply(delta.graphs, centrality.table)
 
-theta.hub <- lapply(theta.centrality, function(x) x |> filter(hub > 0) |> arrange(desc(eigen)))
-delta.hub <- lapply(delta.centrality, function(x) x |> filter(hub > 0) |> arrange(desc(eigen)))
+openxlsx::write.xlsx(delta.centrality,file = "tables/delta.centrality.xlsx")
+
+
+delta.topology <- lapply(delta.graphs, topology.table)
+
+do.call(rbind,delta.topology) |> 
+  rownames_to_column("condition") |> 
+  write_delim(file = "tables/delta.topology.tsv")
+
+
+
 
 save(theta.graphs, delta.graphs, 
      theta.centrality, delta.centrality, 
-     theta.hub, delta.hub,
-     file = "Data/cfgl.RData")
+     theta.topology, delta.topology,
+     file = "result/fgl.RData")
