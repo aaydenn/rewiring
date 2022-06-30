@@ -36,5 +36,6 @@ diff.rank.eigen <- list(
     diff.rank.MFP.ICR.AL = diff.rank.MFP.ICR.AL
   )
 
+save(diff.rank.eigen, file = "result/diff.rank.eigen.RData")
 
 openxlsx::write.xlsx(diff.rank.eigen, "tables/diff.eigen.rank.xlsx")
