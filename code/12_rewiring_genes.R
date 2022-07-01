@@ -3,21 +3,23 @@ library(graphite)
 library(pbapply)
 library(ggrepel)
 
-# load("Data/d.fgl.RData")
-load("Data/targets.Rdata")
+load("data/fgl.RData")
+load("data/targets.Rdata")
+load("result/diff.rank.eigen.RData")
 # load("Data/miRNA_influence.RData")
 
-# these graphs represent the change of network between AL and other diets for each tissue
-deltagraphs <- list(
-  CCR.Blood = d.fgl$CCR$Blood$d.fgl$Delta.graph.connected, 
-  ICR.Blood = d.fgl$ICR$Blood$d.fgl$Delta.graph.connected,
-  CCR.MFP = d.fgl$CCR$MFP$d.fgl$Delta.graph.connected,
-  ICR.MFP = d.fgl$ICR$MFP$d.fgl$Delta.graph.connected
+subgraphs <- list(
+  D.Blood.CCR.AL.subgraph = induced_subgraph(delta.graphs$D.Blood.CCR.AL, diff.rank.eigen$diff.rank.Blood.CCR.AL$miRNA),
+  D.Blood.ICR.AL.subgraph = induced_subgraph(delta.graphs$D.Blood.ICR.AL, diff.rank.eigen$diff.rank.Blood.ICR.AL$miRNA),
+  D.MFP.CCR.AL.subgraph = induced_subgraph(delta.graphs$D.MFP.CCR.AL, diff.rank.eigen$diff.rank.MFP.CCR.AL$miRNA),
+  D.MFP.ICR.AL.subgraph = induced_subgraph(delta.graphs$D.MFP.ICR.AL, diff.rank.eigen$diff.rank.MFP.ICR.AL$miRNA)
 )
 
 targets <- targets.unique # rename
+
 # make new column with ID in KEGG format
 targets$gene <- paste("ENTREZID", targets$entrez, sep = ":")
+
 # get all KEGG pathways in iGraph format
 pwkegg <- pblapply(pathways("mmusculus", "kegg"),
                    function(x) igraph.from.graphNEL(pathwayGraph(x)))
@@ -51,43 +53,69 @@ mir2pw <- function(mir_graph, targets, pw, directed = TRUE) {
   return(list(net = g2, score = score))
 }
 
+
+#' ----------
+#' with delta
+
 all_pathways <- lapply(delta.graphs, function(mir_graph) pblapply(pwkegg,
-                         function(pw) mir2pw(mir_graph, targets, pw)))
+                  function(pw) mir2pw(mir_graph, targets, pw)))
 
 centralitykegg <- lapply(all_pathways, function(mir_graph) sapply(mir_graph,
-                      function(pw) sum(pw$score)))
+                    function(pw) sum(pw$score)))
 
-# df <- pblapply(centralitykegg,
-#                function(x)
-#                  as.data.frame(x, nm = "score") |>
-#                  rownames_to_column(var = "term") |>
-#                  arrange(desc(score)))
-# 
-# mir2kegglist <- list(
-#   hif1 = pblapply(deltagraphs, mir2pw, targets = targets, 
-#                   pw = pwkegg$`HIF-1 signaling pathway`),
-#   mapk = pblapply(deltagraphs, mir2pw, targets = targets, 
-#                   pw = pwkegg$`MAPK signaling pathway`),
-#   phos = pblapply(deltagraphs, mir2pw, targets = targets, 
-#                   pw = pwkegg$`Phosphatidylinositol signaling system`),
-#   foxo = pblapply(deltagraphs, mir2pw, targets = targets, 
-#                   pw = pwkegg$`FoxO signaling pathway`)
-# )
-# 
-# save(mir2kegglist, file = "Data/mir2kegglist.RData")
-# openxlsx::write.xlsx(
-#   x = pblapply(centralitykegg, function(x)
-#     as.data.frame(x, nm = "score") |> 
-#       rownames_to_column(var = "term") |> 
-#       arrange(desc(score))),
-#   file = "Results/mir2pathway.xlsx"
-# )
+delta.influence <- centralitykegg
+
+delta.influence <- pblapply(delta.influence, function(x)
+  as.data.frame(x, nm = "score") |>
+    rownames_to_column(var = "term") |>
+    arrange(desc(score)))
+
+#' ----------------------
+#' with subgraph of delta
+
+all_pathways.subgraph <- lapply(subgraphs, function(mir_graph) pblapply(pwkegg,
+                          function(pw) mir2pw(mir_graph, targets, pw)))
+
+centralitykegg.subgraph <- lapply(all_pathways.subgraph, function(mir_graph) sapply(mir_graph,
+                            function(pw) sum(pw$score)))
+
+delta.influence.subgraph <- centralitykegg.subgraph
+
+delta.influence.subgraph <- pblapply(delta.influence.subgraph, function(x)
+  as.data.frame(x, nm = "score") |>
+    rownames_to_column(var = "term") |>
+    arrange(desc(score)))
+
+
+save(delta.influence,delta.influence.subgraph, file = "result/delta.influence.RData")
+
+
+
+openxlsx::write.xlsx(
+  x = pblapply(delta.influence, function(x)
+    as.data.frame(x, nm = "score") |>
+      rownames_to_column(var = "term") |>
+      arrange(desc(score))),
+  file = "tables/delta.influence.xlsx"
+)
+
+openxlsx::write.xlsx(
+  x = pblapply(delta.influence.subgraph, function(x)
+    as.data.frame(x, nm = "score") |>
+      rownames_to_column(var = "term") |>
+      arrange(desc(score))),
+  file = "tables/delta.influence.subgraph.xlsx"
+)
+
+
+#' -----
+#' plots
 
 df0 <- data.frame(CCR.Blood = centralitykegg$CCR.Blood,
                   ICR.Blood = centralitykegg$ICR.Blood,
                   CCR.MFP = centralitykegg$CCR.MFP,
                   ICR.MFP = centralitykegg$ICR.MFP)
-openxlsx::write.xlsx(df0, "Results/influence_score.xlsx")
+
 
 ccr.blood.mfp <- ggplot(data = df0, aes(x = CCR.Blood, y = CCR.MFP)) + 
   geom_jitter() + 
