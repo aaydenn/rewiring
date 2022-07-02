@@ -31,9 +31,7 @@ theta.graphs <- lapply(theta, make.graph)
 #' Function for differential adjacency matrix
 
 diffmat <- function(theta1, theta2) {
-  G1 <- (abs(theta1) > 1e-5) * 1
-  G2 <- (abs(theta2) > 1e-5) * 1
-  G <- abs(G2-G1)
+  G <- (abs(theta2-theta1) > 1e-5) * 1
   
   colnames(G) <- rownames(G) <- rownames(theta1)
   
