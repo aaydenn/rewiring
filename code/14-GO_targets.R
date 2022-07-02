@@ -2,6 +2,7 @@ library(dplyr)
 library(circlize)
 
 load("result/jgl.RData")
+load("result/diff.rank.eigen.RData")
 load("result/targets.Rdata")
 load("data/go_kegg_list.RData")
 
@@ -122,7 +123,9 @@ save(theta.go, delta.go, file = "result/go.enrichment.RData")
 
 
 # filter genes targeted more than 1
-# 90% = 2  95% = 2 100% = 5 
+# 90% = 2  95% = 2 100% = 5
+
+hub.targets <- data.frame(symbol=c(Arid1="Arid1",Hif1a="Hif1a",Hif1a="Hif1a",Tet2="Tet2"))
 
 hub.count <- lapply(hub.targets, function(x)
   x |> 

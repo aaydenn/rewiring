@@ -3,7 +3,7 @@ library(igraph)
 load("Data/fgl.Rdata") # first level mirna-mirna (GLASSO) ####
 load("Data/targets.Rdata") # second level mirna-gene (mirnatap) ####
 
-#' -------------------------------
+#' ---------------------------------
 # degree distribution for each delta
 
 delta.degree.dist <- lapply(delta.graphs, function(x) {

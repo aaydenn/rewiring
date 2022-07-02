@@ -189,3 +189,22 @@ ccr.icr.mfp <- ggplot(data = df0, aes(x = CCR.MFP, y = ICR.MFP)) +
 ggsave(filename = "Results/influence_ccr_icr_blood.png", plot = ccr.icr.blood, width = 10, height = 10)
 ggsave(filename = "Results/influence_ccr_icr_mfp.png", plot = ccr.icr.mfp, width = 10, height = 10)
 
+
+
+
+
+#' ----------
+#' with theta
+
+all_pathways <- lapply(theta.graphs, function(mir_graph) pblapply(pwkegg,
+                                                                  function(pw) mir2pw(mir_graph, targets, pw)))
+
+centralitykegg <- lapply(all_pathways, function(mir_graph) sapply(mir_graph,
+                                                                  function(pw) sum(pw$score)))
+
+delta.influence <- centralitykegg
+
+delta.influence <- pblapply(delta.influence, function(x)
+  as.data.frame(x, nm = "score") |>
+    rownames_to_column(var = "term") |>
+    arrange(desc(score)))

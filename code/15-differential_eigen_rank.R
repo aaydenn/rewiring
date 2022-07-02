@@ -1,6 +1,4 @@
-tmp <- theta.centrality$Blood.AL
 
-tmp |> mutate(rank=1:nrow(tmp))
 
 theta.centrality.ranked <- lapply(theta.centrality, function(x) x |> mutate(eigen.rank=1:nrow(x)) |> select(miRNA,eigen.rank))
 
