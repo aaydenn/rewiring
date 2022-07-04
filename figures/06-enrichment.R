@@ -30,7 +30,7 @@ p <- (theta.go.plot$Blood.AL + labs(title = "Blood", subtitle = "AL", x="GO_Term
   (theta.go.plot$Blood.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)", x="GO_Term") | theta.go.plot$MFP.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)"))
 
 
-ggsave(filename = "figures/theta.go.png", plot = p, width = 8, height = 15, units = "in",dpi = 300)
+ggsave(filename = "figures/theta.go.png", plot = p, width = 8, height = 11, units = "in",dpi = 300)
 
 
 
@@ -56,7 +56,7 @@ p1 <- (theta.kegg.plot$Blood.AL + labs(title = "Blood", subtitle = "AL", x="KEGG
   (theta.kegg.plot$Blood.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)", x="KEGG_Term") | theta.kegg.plot$MFP.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)"))
 
 
-ggsave(filename = "figures/theta.kegg.png", plot = p1, width = 8, height = 15, units = "in",dpi = 300)
+ggsave(filename = "figures/theta.kegg.png", plot = p1, width = 8, height = 11, units = "in",dpi = 300)
 
 
 
@@ -83,7 +83,7 @@ p2 <- (diff.rank.eigen.go.plot$diff.rank.Blood.CCR.AL + labs(title = "Blood", su
      diff.rank.eigen.go.plot$diff.rank.MFP.ICR.AL + labs(subtitle = "ICR AL", y="log(Adj_Pval)"))
 
 
-ggsave(filename = "figures/diff.rank.go.png", plot = p2, width = 8, height = 15, units = "in",dpi = 300)
+ggsave(filename = "figures/diff.rank.go.png", plot = p2, width = 8, height = 11, units = "in",dpi = 300)
 
 
 #' Diff. eigen.rank KEGG plots
@@ -109,5 +109,5 @@ p3 <- (diff.rank.eigen.kegg.plot$diff.rank.Blood.CCR.AL + labs(title = "Blood", 
   (diff.rank.eigen.kegg.plot$diff.rank.Blood.ICR.AL + labs(subtitle = "ICR AL", y="log(Adj_Pval)", x="KEGG_Term") | 
      diff.rank.eigen.kegg.plot$diff.rank.MFP.ICR.AL + labs(subtitle = "ICR AL", y="log(Adj_Pval)"))
 
-ggsave(filename = "figures/diff.rank.kegg.png", plot = p3, width = 8, height = 15, units = "in",dpi = 300)
+ggsave(filename = "figures/diff.rank.kegg.png", plot = p3, width = 8, height = 11, units = "in",dpi = 300)
 
