@@ -31,7 +31,9 @@ theta.graphs <- lapply(theta, make.graph)
 #' Function for differential adjacency matrix
 
 diffmat <- function(theta1, theta2) {
-  G <- (abs(theta2-theta1) > 1e-5) * 1
+  G1 <- (abs(theta1) > 1e-5) * 1
+  G2 <- (abs(theta2) > 1e-5) * 1
+  G <- abs(G2-G1)
   
   colnames(G) <- rownames(G) <- rownames(theta1)
   
@@ -105,7 +107,7 @@ do.call(rbind,delta.topology) |>
 
 
 
-save(theta.graphs, delta.graphs, 
+save(theta,theta.graphs, delta.graphs, 
      theta.centrality, delta.centrality, 
      theta.topology, delta.topology,
      file = "result/fgl.RData")

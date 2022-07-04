@@ -15,7 +15,9 @@ subgraphs <- list(
   D.MFP.ICR.AL.subgraph = induced_subgraph(delta.graphs$D.MFP.ICR.AL, diff.rank.eigen$diff.rank.MFP.ICR.AL$miRNA)
 )
 
-targets <- targets.unique # rename
+# filter targets for 98 mirna
+targets <- targets.unique[targets.unique$mirna %in% colnames(theta[[1]]),]
+
 
 # make new column with ID in KEGG format
 targets$gene <- paste("ENTREZID", targets$entrez, sep = ":")
@@ -57,18 +59,19 @@ mir2pw <- function(mir_graph, targets, pw, directed = TRUE) {
 #' ----------
 #' with delta
 
-all_pathways <- lapply(delta.graphs, function(mir_graph) pblapply(pwkegg,
+delta.all.pw <- lapply(delta.graphs, function(mir_graph) pblapply(pwkegg,
                   function(pw) mir2pw(mir_graph, targets, pw)))
 
-centralitykegg <- lapply(all_pathways, function(mir_graph) sapply(mir_graph,
+delta.influence <- lapply(delta.all.pw, function(mir_graph) sapply(mir_graph,
                     function(pw) sum(pw$score)))
 
-delta.influence <- centralitykegg
 
 delta.influence <- pblapply(delta.influence, function(x)
   as.data.frame(x, nm = "score") |>
     rownames_to_column(var = "term") |>
     arrange(desc(score)))
+
+
 
 #' ----------------------
 #' with subgraph of delta
@@ -196,15 +199,17 @@ ggsave(filename = "Results/influence_ccr_icr_mfp.png", plot = ccr.icr.mfp, width
 #' ----------
 #' with theta
 
-all_pathways <- lapply(theta.graphs, function(mir_graph) pblapply(pwkegg,
+theta.all.pw <- lapply(theta.graphs, function(mir_graph) pblapply(pwkegg,
                                                                   function(pw) mir2pw(mir_graph, targets, pw)))
-
-centralitykegg <- lapply(all_pathways, function(mir_graph) sapply(mir_graph,
+theta.influence <- lapply(theta.all.pw, function(mir_graph) sapply(mir_graph,
                                                                   function(pw) sum(pw$score)))
 
-delta.influence <- centralitykegg
+openxlsx::write.xlsx(
+  x = pblapply(theta.influence, function(x)
+    as.data.frame(x, nm = "score") |>
+      rownames_to_column(var = "term") |>
+      arrange(desc(score))),
+  file = "tables/theta.influence.xlsx"
+)
 
-delta.influence <- pblapply(delta.influence, function(x)
-  as.data.frame(x, nm = "score") |>
-    rownames_to_column(var = "term") |>
-    arrange(desc(score)))
+save(theta.influence,file = "result/theta.influence.RData")
