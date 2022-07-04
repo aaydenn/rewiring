@@ -58,3 +58,54 @@ p2 <- ggplot(mfp, aes(Var1, log10(Freq), colour=Network.ID)) +
 
 ggsave("figures/delta.degree.dist.blood.png", p1, width = 8, height = 8, units = "in", dpi = 300)
 ggsave("figures/delta.degree.dist.mfp.png",   p2, width = 8, height = 8, units = "in", dpi = 300)
+
+
+#' ---------------------------------
+# degree distribution for each theta
+
+theta.degree.dist <- lapply(theta.graphs, function(x) {
+  x |> 
+    degree() |> 
+    table() |> 
+    as.data.frame() |> 
+    mutate(Var1 = as.numeric(Var1))
+})
+
+blood <- rbind(
+  data.frame(theta.degree.dist$Blood.AL, `Network ID` = "Blood.AL"),
+  data.frame(theta.degree.dist$Blood.CCR, `Network ID` = "Blood.CCR"),
+  data.frame(theta.degree.dist$Blood.ICR, `Network ID` = "Blood.ICR")
+)
+
+
+p3 <- ggplot(blood, aes(Var1, log10(Freq), colour=Network.ID)) + 
+  geom_point()+
+  geom_smooth(se=TRUE,method = "lm")+
+  scale_color_manual(values=c("salmon2", "royalblue2", "seagreen2"))+
+  # geom_ribbon(stat = "smooth",
+  #             method = "lm",
+  #             se = TRUE,
+  #             alpha = 0.1, # or, use fill = NA
+  #             colour = "black",
+  #             linetype = "dotted")+
+  xlab("Degree(k)") + 
+  ylab("log(Frequency)") +
+  theme_bw()+
+  theme(legend.position = c(0.9, 0.9), legend.justification = c(1,1), legend.background = element_blank())+
+  theme(text=element_text(family="Times", size = 18));p3
+
+p4 <- ggplot(mfp, aes(Var1, log10(Freq), colour=Network.ID)) + 
+  geom_point()+
+  geom_smooth(se=FALSE)+
+  scale_color_manual(values=c("salmon2", "royalblue2"))+
+  geom_ribbon(stat = "smooth",
+              method = "loess",
+              se = TRUE,
+              alpha = 0.1, # or, use fill = NA
+              colour = "black",
+              linetype = "dotted")+
+  xlab("Degree(k)") + 
+  ylab("log(Frequency)") +
+  theme_bw()+
+  theme(legend.position = c(0.9, 0.9), legend.justification = c(1,1), legend.background = element_blank())+
+  theme(text=element_text(family="Times", size = 18));p4
