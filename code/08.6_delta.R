@@ -50,7 +50,7 @@ delta <- list(
   ,
   D.MFP.CCR.AL = diffmat(theta$MFP.CCR, theta$MFP.AL),
   D.MFP.ICR.AL = diffmat(theta$MFP.ICR, theta$MFP.AL),
-  D.MFP.ICR.CCR = diffmat(theta$MFP.ICR, theta$MFP.AL)
+  D.MFP.ICR.CCR = diffmat(theta$MFP.ICR, theta$MFP.CCR)
   ,
   D.AL.MFP.Blood = diffmat(theta$MFP.AL,theta$Blood.AL),
   D.CCR.MFP.Blood = diffmat(theta$MFP.CCR,theta$Blood.CCR),
@@ -86,9 +86,11 @@ openxlsx::write.xlsx(theta.centrality,file = "tables/theta.centrality.xlsx")
 
 theta.topology <- lapply(theta.graphs, topology.table)
 
-do.call(rbind,theta.topology) |> 
-  rownames_to_column("condition") |> 
-  write_delim(file = "tables/theta.topology.tsv")
+
+openxlsx::write.xlsx(do.call(rbind,theta.topology) |> 
+                       rownames_to_column("condition"), 
+                     file = "tables/theta.topology.xlsx")
+
 
 
 
@@ -100,9 +102,9 @@ openxlsx::write.xlsx(delta.centrality,file = "tables/delta.centrality.xlsx")
 
 delta.topology <- lapply(delta.graphs, topology.table)
 
-do.call(rbind,delta.topology) |> 
-  rownames_to_column("condition") |> 
-  write_delim(file = "tables/delta.topology.tsv")
+openxlsx::write.xlsx(do.call(rbind,delta.topology) |> 
+                       rownames_to_column("condition"), 
+                     file = "tables/delta.topology.xlsx")
 
 
 
@@ -110,4 +112,4 @@ do.call(rbind,delta.topology) |>
 save(theta,theta.graphs, delta.graphs, 
      theta.centrality, delta.centrality, 
      theta.topology, delta.topology,
-     file = "result/fgl.RData")
+     file = "result/theta_delta.RData")
