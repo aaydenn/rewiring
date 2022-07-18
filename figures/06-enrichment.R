@@ -1,5 +1,6 @@
 library(ggplot2)
 library(dplyr)
+library(patchwork)
 library(stringr)
 
 load("result/fgl.RData")
@@ -22,15 +23,22 @@ theta.go.plot <- lapply(theta.go.top, function(x) {
     theme_bw()+
     coord_flip()+
     scale_x_discrete(labels = function(x) str_wrap(x, width = 20))+
-    labs(x="",y="")
+    labs(x="",y="") + theme(text=element_text(size = 10),legend.position = "none")
   })
 
-p <- (theta.go.plot$Blood.AL + labs(title = "Blood", subtitle = "AL", x="GO_Term")  | theta.go.plot$MFP.AL + labs(title = "MFP", subtitle = "AL")) / 
-  (theta.go.plot$Blood.CCR + labs(subtitle = "CCR", x="GO_Term") | theta.go.plot$MFP.CCR + labs(subtitle = "CCR")) / 
-  (theta.go.plot$Blood.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)", x="GO_Term") | theta.go.plot$MFP.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)"))
+# blood
+
+p <- (theta.go.plot$Blood.AL + labs(subtitle = "AL", x="Term") | theta.go.plot$Blood.CCR + labs(subtitle = "CCR", y = "-log(pval)") | theta.go.plot$Blood.ICR + labs(subtitle = "ICR"))
+
+ggsave(filename = "figures/theta.go.blood.png", plot = p, width = 8, height = 5, units = "in",dpi = 300)
 
 
-ggsave(filename = "figures/theta.go.png", plot = p, width = 8, height = 11, units = "in",dpi = 300)
+
+# mfp
+
+p1 <- (theta.go.plot$MFP.AL + labs(subtitle = "AL", x="Term") | theta.go.plot$MFP.CCR + labs(subtitle = "CCR", y = "-log(pval)") | theta.go.plot$MFP.ICR + labs(subtitle = "ICR"))
+
+ggsave(filename = "figures/theta.go.mfp.png", plot = p1, width = 8, height = 5, units = "in",dpi = 300)
 
 
 
@@ -73,17 +81,28 @@ diff.rank.eigen.go.plot <- lapply(diff.rank.eigen.go.top, function(x) {
     scale_fill_gradient(low = "slateblue1", high = "slateblue4")+
     theme_bw()+
     coord_flip()+
-    scale_x_discrete(labels = function(x) str_wrap(x, width = 20))+
-    labs(x="",y="")
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 30))+
+    labs(x="",y="") + theme(text=element_text(size = 12),legend.position = "none")
 })
 
-p2 <- (diff.rank.eigen.go.plot$diff.rank.Blood.CCR.AL + labs(title = "Blood", subtitle = "CCR AL", x="GO_Term") | 
-         diff.rank.eigen.go.plot$diff.rank.MFP.CCR.AL + labs(title = "MFP", subtitle = "CCR AL")) / 
-  (diff.rank.eigen.go.plot$diff.rank.Blood.ICR.AL + labs(subtitle = "ICR AL", y="log(Adj_Pval)", x="GO_Term") | 
-     diff.rank.eigen.go.plot$diff.rank.MFP.ICR.AL + labs(subtitle = "ICR AL", y="log(Adj_Pval)"))
+
+# blood
+
+p3 <- (diff.rank.eigen.go.plot$diff.rank.Blood.CCR.AL + labs(subtitle = "CCR AL", x = "Term",y="-log(pval)")) | 
+  (diff.rank.eigen.go.plot$diff.rank.Blood.ICR.AL + labs(subtitle = "ICR AL",y="-log(pval)"))
+
+ggsave(filename = "figures/diff.rank.go.blood.png", plot = p3, width = 8, height = 5, units = "in",dpi = 300)
 
 
-ggsave(filename = "figures/diff.rank.go.png", plot = p2, width = 8, height = 11, units = "in",dpi = 300)
+
+# mfp
+
+p4 <- (diff.rank.eigen.go.plot$diff.rank.MFP.CCR.AL + labs(subtitle = "CCR AL", x = "Term",y="-log(pval)")) | 
+  (diff.rank.eigen.go.plot$diff.rank.MFP.ICR.AL + labs(subtitle = "ICR AL",y="-log(pval)"))
+
+ggsave(filename = "figures/diff.rank.go.mfp.png", plot = p4, width = 8, height = 5, units = "in",dpi = 300)
+
+
 
 
 #' Diff. eigen.rank KEGG plots

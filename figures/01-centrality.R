@@ -1,9 +1,9 @@
 library(ggplot2)
 library(ggpubr)
 
-load("result/fgl.RData")
+load("result/theta_delta.RData")
 
-#' plotting centrality
+#' plotting centrality for theta
 
 tmp <- lapply(1:length(theta.centrality), function(x)
   theta.centrality[[x]] |> mutate(
@@ -15,9 +15,9 @@ tmp <- lapply(1:length(theta.centrality), function(x)
 tmp2 <- do.call(rbind, tmp) |> 
   reshape2::melt(variable = "centrality")
 
-blood <- tmp2 |> filter(theta == c("Blood.AL","Blood.CCR","Blood.ICR"))
+blood <- tmp2 |> filter(theta == c("Blood.AL","Blood.CCR","Blood.ICR")) |> mutate(theta=str_remove(theta,"Blood."))
 
-mfp <- tmp2 |> filter(theta == c("MFP.AL","MFP.CCR","MFP.ICR"))
+mfp <- tmp2 |> filter(theta == c("MFP.AL","MFP.CCR","MFP.ICR")) |> mutate(theta=str_remove(theta,"MFP."))
 
 p <- ggpubr::ggboxplot(
   blood,
@@ -25,15 +25,17 @@ p <- ggpubr::ggboxplot(
   "value",
   fill = "centrality",
   bxp.errorbar = T,
-  xlab = "coexp. networks",
-  ylab = "measurement (scaled)",
+  xlab = "",
+  ylab = "measurement (blood)",
   palette = c("gray2", "gray42", "gray82"),
   ggtheme = theme_bw()
-) |> ggsave(
+) + theme(text=element_text(size = 18))
+
+ggsave(p,
   filename = "figures/theta.centrality.blood.png",
   units = "in",
   width = 8,
-  height = 8,
+  height = 5,
   dpi = 300
 )
 
@@ -43,15 +45,18 @@ p2 <- ggpubr::ggboxplot(
   "value",
   fill = "centrality",
   bxp.errorbar = T,
-  xlab = "coexp. networks",
-  ylab = "measurement (scaled)",
+  xlab = "",
+  ylab = "measurement (blood)",
   palette = c("salmon2", "royalblue2", "springgreen2"),
   ggtheme = theme_bw()
-) |> ggsave(
+) + 
+  theme(text=element_text(size = 18))
+
+ggsave(p2,
   filename = "figures/theta.centrality.blood_colored.png",
   units = "in",
   width = 8,
-  height = 8,
+  height = 5,
   dpi = 300
 )
 
@@ -61,15 +66,18 @@ p3 <- ggpubr::ggboxplot(
   "value",
   fill = "centrality",
   bxp.errorbar = T,
-  xlab = "coexp. networks",
-  ylab = "measurement (scaled)",
+  xlab = "",
+  ylab = "measurement (MFP)",
   palette = c("salmon2", "royalblue2", "springgreen2"),
   ggtheme = theme_bw()
-) |> ggsave(
+) + 
+  theme(text=element_text(size = 18))
+
+ggsave(p3,
   filename = "figures/theta.centrality.mfp_colored.png",
   units = "in",
   width = 8,
-  height = 8,
+  height = 5,
   dpi = 300
 )
 
@@ -79,21 +87,24 @@ p4 <- ggpubr::ggboxplot(
   "value",
   fill = "centrality",
   bxp.errorbar = T,
-  xlab = "coexp. networks",
-  ylab = "measurement (scaled)",
+  xlab = "",
+  ylab = "measurement (MFP)",
   palette = c("gray2", "gray42", "gray82"),
   ggtheme = theme_bw()
-) |> ggsave(
+) + 
+  theme(text=element_text(size = 18))
+
+ggsave(p4,
   filename = "figures/theta.centrality.mfp.png",
   units = "in",
   width = 8,
-  height = 8,
+  height = 5,
   dpi = 300
 )
 
 
 
-#' plotting centrality
+#' plotting centrality for delta
 
 tmp <- lapply(1:length(delta.centrality), function(x)
   delta.centrality[[x]] |> mutate(
@@ -116,15 +127,18 @@ p5 <- ggpubr::ggboxplot(
   "value",
   fill = "centrality",
   bxp.errorbar = T,
-  xlab = "diff. networks",
-  ylab = "measurement (scaled)",
+  xlab = "",
+  ylab = "measurement (blood)",
   palette = c("salmon2", "royalblue2", "springgreen2"),
   ggtheme = theme_bw()
-) |> ggsave(
+) + 
+  theme(text=element_text(size = 18))
+
+ggsave(p5,
   filename = "figures/delta.centrality.blood_colored.png",
   units = "in",
   width = 8,
-  height = 8,
+  height = 5,
   dpi = 300
 )
 
@@ -135,14 +149,17 @@ p6 <- ggpubr::ggboxplot(
   "value",
   fill = "centrality",
   bxp.errorbar = T,
-  xlab = "dif.. networks",
-  ylab = "measurement (scaled)",
+  xlab = "",
+  ylab = "measurement (MFP)",
   palette = c("salmon2", "royalblue2", "springgreen2"),
   ggtheme = theme_bw()
-) |> ggsave(
+) + 
+  theme(text=element_text(size = 18))
+
+ggsave(p6,
   filename = "figures/delta.centrality.mfp_colored.png",
   units = "in",
   width = 8,
-  height = 8,
+  height = 5,
   dpi = 300
 )
