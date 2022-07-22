@@ -30,7 +30,7 @@ blood <- tmp2 |>
 p <- ggplot(data = blood, aes(x = theta, y = value, fill = centrality)) + 
   geom_boxplot() + 
   scale_fill_manual(values = c("salmon2", "royalblue2", "springgreen2")) + 
-  facet_grid(~centrality) + 
+  facet_wrap(~centrality,scales = "free_y") + 
   theme_bw() + 
   theme(text = element_text(size = 18),
         axis.title.x = element_blank(), 
@@ -54,7 +54,7 @@ mfp <- tmp2 |>
 p1 <- ggplot(data = mfp, aes(x = theta, y = value, fill = centrality)) + 
   geom_boxplot() + 
   scale_fill_manual(values = c("salmon2", "royalblue2", "springgreen2")) + 
-  facet_grid(~centrality) + 
+  facet_wrap(~centrality, scales = "free_y") + 
   theme_bw() + 
   theme(text = element_text(size = 18),
         axis.title.x = element_blank(), 
