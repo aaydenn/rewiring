@@ -115,19 +115,19 @@ goenrich <- function(DE_mirna) {
 
 
 # GO enrichment for hub miRNAs in theta graphs
-theta.go <- lapply(theta.hub, function(x) {goenrich(x$miRNA) |> filter(p.val != 0)})
+theta.go <- lapply(theta.hub, function(x) {goenrich(x$miRNA) |> dplyr::filter(go.size > 8)})
 
 openxlsx::write.xlsx(theta.go, file = "tables/theta.go.xlsx")
 
 
 # GO enrichment for hub miRNAs in delta graphs
-delta.go <- lapply(delta.hub, function(x) {goenrich(x$miRNA) |> filter(p.val != 0)})
+delta.go <- lapply(delta.hub, function(x) {goenrich(x$miRNA) |> dplyr::filter(go.size > 8)})
 
 openxlsx::write.xlsx(delta.go, file = "tables/delta.go.xlsx")
 
 
 # GO enrichment for diff.eigen.rank miRNAs in theta graphs
-diff.rank.eigen.go <- lapply(diff.rank.eigen, function(x) goenrich(x$miRNA) |> filter(p.val != 0))
+diff.rank.eigen.go <- lapply(diff.rank.eigen, function(x) goenrich(x$miRNA) |> dplyr::filter(go.size > 8))
 
 openxlsx::write.xlsx(diff.rank.eigen.go, file = "tables/diff.rank.eigen.go.xlsx")
 

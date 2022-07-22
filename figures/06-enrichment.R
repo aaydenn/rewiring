@@ -18,12 +18,12 @@ theta.go.top <- lapply(theta.go, function(x)
 
 
 theta.go.plot <- lapply(theta.go.top, function(x) {
-  ggplot(x,aes(reorder(GO_Term,-log10(Adj_Pval)),-log10(Adj_Pval),fill=miRNA_Size))+
-    geom_bar(stat="identity")+
+  ggplot(x,aes(reorder(GO_Term,-log10(Adj_Pval)),-log10(Adj_Pval)))+
+    geom_bar(stat="identity",fill="royalblue4")+
     theme_bw()+
     coord_flip()+
-    scale_x_discrete(labels = function(x) str_wrap(x, width = 20))+
-    labs(x="",y="") + theme(text=element_text(size = 10),legend.position = "none")
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 25))+
+    labs(x="",y="") + theme(text=element_text(size = 11),legend.position = "none")
   })
 
 # blood
@@ -59,12 +59,12 @@ theta.kegg.plot <- lapply(theta.kegg.top, function(x) {
     labs(x="", y="")
 })
 
-p1 <- (theta.kegg.plot$Blood.AL + labs(title = "Blood", subtitle = "AL", x="KEGG_Term")  | theta.kegg.plot$MFP.AL + labs(title = "MFP", subtitle = "AL")) / 
+p2 <- (theta.kegg.plot$Blood.AL + labs(title = "Blood", subtitle = "AL", x="KEGG_Term")  | theta.kegg.plot$MFP.AL + labs(title = "MFP", subtitle = "AL")) / 
   (theta.kegg.plot$Blood.CCR + labs(subtitle = "CCR", x="KEGG_Term") | theta.kegg.plot$MFP.CCR + labs(subtitle = "CCR")) / 
   (theta.kegg.plot$Blood.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)", x="KEGG_Term") | theta.kegg.plot$MFP.ICR + labs(subtitle = "ICR", y="log(Adj_Pval)"))
 
 
-ggsave(filename = "figures/theta.kegg.png", plot = p1, width = 8, height = 11, units = "in",dpi = 300)
+ggsave(filename = "figures/theta.kegg.png", plot = p2, width = 8, height = 11, units = "in",dpi = 300)
 
 
 

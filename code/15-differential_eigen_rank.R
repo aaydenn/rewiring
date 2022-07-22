@@ -45,7 +45,7 @@ openxlsx::write.xlsx(diff.rank.eigen, "tables/diff.rank.eigen.xlsx")
 #' -------------------------------------------------------
 #' condition dependent differential enriched GO term ranks
 
-theta.go.ranked <- lapply(theta.go, function(x) x |> mutate(adj.p.val.rank=1:nrow(x)) |> select(GO_Term,adj.p.val.rank))
+theta.go.ranked <- lapply(theta.go, function(x) x |> mutate(adj.p.val.rank=1:nrow(x)))
 
 
 
