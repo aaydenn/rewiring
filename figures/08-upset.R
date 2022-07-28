@@ -10,7 +10,7 @@ load("result/mouse-data-features.RData")
 ##table for all contrasts (upset)
 venn_table <-
   function(c1, c2, c3, c4,c5, c6, gn = gnames, mouse_annot = mouse_4.1) {
-    names <- unique(unlist(gn[c(c1, c2, c3)]))
+    names <- unique(unlist(gn[c(c1, c2, c3, c4,c5, c6)]))
     transcr <- mouse_annot$`Transcript ID(Array Design)`
     names(transcr) <- mouse_annot$`Transcript ID(Array Design)`
     
