@@ -53,3 +53,24 @@ gnames[c(
     "d.CCR.81.82.MFP","d.ICR.81.82.MFP")] |> unlist() |> unique() -> DE.mfp
 
 save(DE.table, DE.number, gnames, gnames.unique, DE.blood, DE.brain, DE.mfp, file = "Data/DE_miRNAs.RData")
+
+
+
+
+bl <- DE.table[1:6]
+
+b <- do.call(rbind,bl) 
+
+b$feat <- rep(names(bl),sapply(bl,nrow))
+
+openxlsx::write.xlsx(b,"tables/de.blood.xlsx")
+
+
+
+mf <- DE.table[13:18]
+
+m <- do.call(rbind,mf) 
+
+m$feat <- rep(names(mf),sapply(mf,nrow))
+
+openxlsx::write.xlsx(m,"tables/de.mfp.xlsx")
