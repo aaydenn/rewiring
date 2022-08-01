@@ -10,24 +10,24 @@ theta.centrality.ranked <- lapply(theta.centrality, function(x) x |> mutate(eige
 
 # Blood
 
-diff.rank.theta.go.Blood <- inner_join(theta.go.ranked$Blood.AL,theta.centrality.ranked$Blood.CCR,by="miRNA") |> 
+diff.rank.Blood.CCR.AL <- inner_join(theta.centrality.ranked$Blood.AL,theta.centrality.ranked$Blood.CCR,by="miRNA") |> 
   mutate(d.rank = eigen.rank.x - eigen.rank.y) |> 
-  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank)) |> filter(abs(z.rank)>1)
+  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank))
 
 diff.rank.Blood.ICR.AL <- inner_join(theta.centrality.ranked$Blood.AL,theta.centrality.ranked$Blood.ICR,by="miRNA") |> 
   mutate(d.rank = eigen.rank.x - eigen.rank.y) |> 
-  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank)) |> filter(abs(z.rank)>1)
+  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank))
 
 
 #' MFP
 
 diff.rank.MFP.CCR.AL <- inner_join(theta.centrality.ranked$MFP.AL,theta.centrality.ranked$MFP.CCR,by="miRNA") |> 
   mutate(d.rank = eigen.rank.x - eigen.rank.y) |> 
-  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank)) |> filter(abs(z.rank)>1)
+  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank))
 
 diff.rank.MFP.ICR.AL <- inner_join(theta.centrality.ranked$MFP.AL,theta.centrality.ranked$MFP.ICR,by="miRNA") |> 
   mutate(d.rank = eigen.rank.x - eigen.rank.y) |> 
-  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank)) |> filter(abs(z.rank)>1)
+  mutate(z.rank = (d.rank- mean(d.rank))/sd(d.rank))
 
 diff.rank.eigen <- list(
   diff.rank.Blood.CCR.AL = diff.rank.Blood.CCR.AL,
