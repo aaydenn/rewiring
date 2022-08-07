@@ -4,6 +4,7 @@ library(Biobase)
 library(patchwork)
 
 load("result/mouse-data-features.RData")
+load("G:/Drive'ım/CR-miRNA/Data/full.Data.RData")
 
 colnames(mouse.Data) <- toupper(colnames(mouse.Data))
 colnames(mouse.Data) <- gsub("ICRR|ICRRF", "ICR", colnames(mouse.Data))
@@ -64,12 +65,11 @@ ggsave("figures/same_diet.png",p4,width = 8, height = 4, units = "in", dpi = 300
 
 pData(full.Data) <- cbind(pData(full.Data), features)
 
-rownames(features) <- colnames(exp_raw0)
 
 
 ## ignore brain data
 
-keep <- features[features$tissue != "Brain", ]
+
 
 p_data0 <- pData(full.Data)[pData(full.Data)$tissue != "Brain", ]
 
@@ -81,6 +81,10 @@ p_data <- mutate(p_data0,
 
 exp_raw0 <- log2(Biobase::exprs(full.Data))
 
+rownames(features) <- colnames(exp_raw0)
+
+keep <- features[features$tissue != "Brain", ]
+
 exp_raw <- exp_raw0[, rownames(keep)]
 
 
@@ -89,7 +93,8 @@ exp_raw <- exp_raw0[, rownames(keep)]
 
 PCAraw <- prcomp(t(exp_raw), scale. = FALSE)
 
-# percentVarRaw <- round(100 * PCAraw$sdev^2 / sum(PCAraw$sdev^2), 1)
+percentVarRaw <- round(100 * PCAraw$sdev^2 / sum(PCAraw$sdev^2), 1)
+
 # sd_ratio_raw <- sqrt(percentVarRaw[2] / percentVarRaw[1])
 
 
@@ -109,9 +114,14 @@ p01 <- ggplot(dataGGraw, aes(PC1, PC2)) +
   # coord_fixed(ratio = sd_ratio_raw*2) + 
   # ggtitle("PCA plot of the log-transformed raw expression data") + 
   theme_bw() +
-  theme(legend.position = c(0.99, 0.01), legend.justification = c(1,0), legend.background = element_blank()) +
-  # theme(legend.position = "bottom") + 
-  theme(text=element_text(size = 15))
+  theme(# legend properties
+    legend.position = c(0.99, 0.01), 
+    legend.justification = c(1,0), 
+    legend.background = element_rect(fill = alpha("grey", 0.2)),
+    legend.key.height = unit(0.1,"in"),
+    legend.key.size = unit(0.1,"in"),
+    # every text element
+    text = element_text(size = 15))
 
 
 ggsave("figures/pca_raw.png", p01, units = "in", width = 8, height = 8, dpi = 300)
@@ -146,8 +156,13 @@ p02 <- ggplot(dataGGnorm, aes(PC1, PC2)) +
   # coord_fixed(ratio = sd_ratio_raw*2) + 
   # ggtitle("PCA plot of the log-transformed norm. expression data") + 
   theme_bw() +
-  theme(legend.position = c(0.99, 0.01), legend.justification = c(1,0), legend.background = element_blank()) +
-  # theme(legend.position = "bottom") + 
-  theme(text=element_text(size = 15))
+  theme(# legend properties
+    legend.position = c(0.99, 0.01), 
+    legend.justification = c(1,0), 
+    legend.background = element_rect(fill = alpha("grey", 0.2)),
+    legend.key.height = unit(0.1,"in"),
+    legend.key.size = unit(0.1,"in"),
+    # every text element
+    text = element_text(size = 15))
 
 ggsave("figures/pca_norm.png", p02, units = "in", width = 8, height = 8, dpi = 300)
