@@ -5,32 +5,28 @@ load("result/theta_delta.RData")
 
 
 
+cent <- lapply(theta.centrality, rename, ANND = knn)
+
+
 #' plotting centrality for theta
 
-tmp <- lapply(1:length(theta.centrality), function(x)
-  theta.centrality[[x]] |> mutate(
-    theta = names(theta.centrality[x]),
-    degree = degree,
-    knn = knn
-  ) |> select(!hub))
+tmp <- lapply(1:length(cent), function(x)
+  cent[[x]] |> 
+    mutate(theta = names(cent[x]), degree = degree, ANND = ANND) |> 
+    select(!hub))
 
 
-tmp2 <- do.call(rbind, tmp) |> 
-  reshape2::melt(variable = "centrality")
-
-
-
-
-blood <- tmp2 |> 
+blood <- do.call(rbind, tmp) |> 
+  reshape2::melt(variable = "centrality") |> 
   filter(theta == c("Blood.AL","Blood.CCR","Blood.ICR")) |> 
-  mutate(theta=str_remove(theta,"Blood."))
+  mutate(theta = str_remove(theta,"Blood."))
 
 
 
 p <- ggplot(data = blood, aes(x = theta, y = value, fill = centrality)) + 
   geom_boxplot() + 
   scale_fill_manual(values = c("salmon2", "royalblue2", "springgreen2")) + 
-  facet_wrap(~centrality,scales = "free_y") + 
+  facet_wrap(~factor(centrality, levels = c("degree","ANND", "eigen")), scales = "free_y") + 
   theme_bw() + 
   theme(text = element_text(size = 18),
         axis.title.x = element_blank(), 
@@ -44,8 +40,8 @@ ggsave(p, filename = "figures/theta.centrality.blood.png",
 
 
 
-
-mfp <- tmp2 |> 
+mfp <- do.call(rbind, tmp) |> 
+  reshape2::melt(variable = "centrality")|> 
   filter(theta == c("MFP.AL","MFP.CCR","MFP.ICR")) |> 
   mutate(theta=str_remove(theta,"MFP."))
 
@@ -54,14 +50,14 @@ mfp <- tmp2 |>
 p1 <- ggplot(data = mfp, aes(x = theta, y = value, fill = centrality)) + 
   geom_boxplot() + 
   scale_fill_manual(values = c("salmon2", "royalblue2", "springgreen2")) + 
-  facet_wrap(~centrality, scales = "free_y") + 
+  facet_wrap(~factor(centrality, levels = c("degree","ANND", "eigen")), scales = "free_y") + 
   theme_bw() + 
   theme(text = element_text(size = 18),
         axis.title.x = element_blank(), 
         legend.position = "none") + 
   ylab("centrality indices")
 
-ggsave(p1, filename = "figures/theta.centrality.mfp_colored.png",
+ggsave(p1, filename = "figures/theta.centrality.mfp.png",
   units = "in", width = 8, height = 5, dpi = 300)
 
 
