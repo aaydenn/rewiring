@@ -2,7 +2,7 @@
 # "gnames" contains IDs of miRNAs
 # load("Data/contrasts.RData")
 
-library(UpSetR)
+library(ComplexUpset)
 load("result/DE_miRNAs.RData")
 load("result/mouse-data-features.RData")
 
@@ -26,6 +26,10 @@ venn_table <-
     )
   }
 
+
+
+# Blood
+
 blood <- venn_table("d.AL.49.50.Blood", "d.AL.81.82.Blood",
                     "d.CCR.49.50.Blood", "d.CCR.81.82.Blood",
                     "d.ICR.49.50.Blood", "d.ICR.81.82.Blood")
@@ -34,6 +38,34 @@ colnames(blood) <- c("miRNA",
                      " AL.50", " AL.81",
                      "CCR.50", "CCR.81",
                      "ICR.50", "ICR.81")
+
+
+b <- do.call(rbind,DE.table[1:6]) |> 
+  mutate(feat = rep(names(DE.table[1:6]),sapply(DE.table[1:6],nrow))) |> 
+  mutate(Regulation = ifelse(logFC>0, "up","down")) |> 
+  select(miRNA,Regulation) |> 
+  inner_join(blood, by="miRNA") |> 
+  distinct()
+
+
+
+png(filename = "figures/blood_upset.png", width = 8, height = 5, units = "in", res = 300)
+
+upset(data = b,
+  intersect = colnames(b[-c(1,2)]),
+  name='Dietary Groups',
+  base_annotations = list('Number of miRNAs' = intersection_size(counts = FALSE, mapping = aes(fill = Regulation)) + 
+                            scale_fill_manual(values=c('up'='salmon2', 'down'='royalblue'))),
+  sort_sets = FALSE,
+  width_ratio = 0.1
+)
+
+dev.off()
+
+
+
+
+# MFP
 
 mfp <- venn_table("d.AL.49.50.MFP", "d.AL.81.82.MFP",
                   "d.CCR.49.50.MFP", "d.CCR.81.82.MFP",
@@ -44,24 +76,25 @@ colnames(mfp) <- c("miRNA",
                    "CCR.50", "CCR.81",
                    "ICR.50", "ICR.81")
 
-png(filename = "figures/blood_upset.png", width = 8, height = 5, units = "in", res = 300)
-upset(blood, 
-      sets = c(" AL.50", "CCR.50", "ICR.50",
-               " AL.81", "CCR.81", "ICR.81"), 
-      keep.order = TRUE, 
-      mainbar.y.label = "Intersection (Blood)", 
-      sets.x.label = NULL,
-      matrix.color = "gray11", point.size = 5, text.scale = 1.35)
-dev.off()
+m <- do.call(rbind, DE.table[13:18]) |> 
+  mutate(feat = rep(names(DE.table[13:18]),sapply(DE.table[13:18],nrow))) |> 
+  mutate(Regulation = ifelse(logFC > 0, "up","down")) |> 
+  select(miRNA, Regulation) |> 
+  inner_join(mfp, by="miRNA") |> 
+  distinct()
+
+
 
 png(filename = "figures/mfp_upset.png", width = 8, height = 5, units = "in", res = 300)
-upset(mfp, 
-      sets = c(" AL.50", "CCR.50", "ICR.50",
-               " AL.81", "CCR.81", "ICR.81"), 
-      keep.order = TRUE, 
-      mainbar.y.label = "Intersection (MFP)", 
-      sets.x.label = NULL,
-      matrix.color = "gray11", point.size = 5, text.scale = 1.35)
+
+upset(data = m,
+      intersect = colnames(m[-c(1,2)]),
+      name='Dietary Groups',
+      base_annotations = list('Number of miRNAs' = intersection_size(counts = FALSE, mapping = aes(fill = Regulation)) + 
+                                scale_fill_manual(values=c('up'='salmon2', 'down'='royalblue'))),
+      sort_sets = FALSE,
+      width_ratio = 0.1)
+
 dev.off()
 
 openxlsx::write.xlsx(blood,file = "tables/blood.upset.matrix.xlsx")
