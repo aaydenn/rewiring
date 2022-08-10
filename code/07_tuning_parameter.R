@@ -206,14 +206,20 @@ huge_stars_joint <- function(inputlist, lambda = NULL, nlambda = 10, lambda.min.
 #' @export
 stars.select <- function(inputlist, nlamb = 15, rep.num = 15, lambvec = NULL){
   tt0 = proc.time()
-  stars.l1 <- huge_stars_joint(inputlist, lambda = lambvec, nlambda = nlamb, lambda.min.ratio = NULL, 
+  stars.l1 <- huge_stars_joint(inputlist, lambda = lambvec, nlambda = nlamb,
+                               lambda.min.ratio = NULL, 
                                stars.subsample.ratio.vec = NULL,
-                               rep.num = rep.num, stars.thresh = 0.1, lam2init = 0.05, lam1init = NULL, verbose = T)
-  stars.l2 <- huge_stars_joint(inputlist, lambda = lambvec, nlambda = nlamb, lambda.min.ratio = NULL,
+                               rep.num = rep.num, stars.thresh = 0.1,
+                               lam2init = 0.05, lam1init = NULL, verbose = T)
+  stars.l2 <- huge_stars_joint(inputlist, lambda = lambvec, nlambda = nlamb,
+                               lambda.min.ratio = NULL,
                                stars.subsample.ratio.vec = NULL,
-                               rep.num = rep.num, stars.thresh = 0.1, lam2init = NULL, lam1init = stars.l1$opt.lambda,
+                               rep.num = rep.num, stars.thresh = 0.1,
+                               lam2init = NULL, lam1init = stars.l1$opt.lambda,
                                verbose = T)
-  res = try(JGL::JGL(inputlist, lambda1 = stars.l1$opt.lambda , lambda2 = stars.l2$opt.lambda, return.whole.theta = T),
+  res = try(JGL::JGL(inputlist, lambda1 = stars.l1$opt.lambda,
+                                lambda2 = stars.l2$opt.lambda,
+                                return.whole.theta = T),
             silent = T)
   tt1 = proc.time()
   return(list(stars.l1 = stars.l1,
