@@ -177,5 +177,5 @@ ggsave("figures/pca_norm.png", p02, units = "in", width = 8, height = 8, dpi = 3
 
 
 # for manuscript
-# ((p1 + p02 + p2 + p3) + plot_annotation(tag_levels = 'A')) |> 
-#   ggsave(filename = "similarity_manuscript.png", width = 8, height = 8, dpi = 320)
+((p02 + p1 + p2 + p3) + plot_annotation(tag_levels = 'A')) |>
+  ggsave(filename = "similarity_manuscript.svg", width = 8, height = 8, dpi = 320)

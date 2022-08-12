@@ -202,7 +202,7 @@ fig_label <- function(text, region="figure", pos="topleft", cex=NULL, ...) {
 
 svg("figures/subgraphs_manuscript.svg",8,8)
 
-par(mfrow=c(2,3))
+par(mfrow=c(3,3))
 
 
 # blood miR-505-5p
@@ -222,6 +222,16 @@ subgraph(theta.graphs$MFP.AL, unlist(neighborhood(theta.graphs$MFP.AL, nodes = "
 subgraph(theta.graphs$MFP.CCR, unlist(neighborhood(theta.graphs$MFP.CCR, nodes = "mmu-miR-23a-3p"))) |> myplot("darkolivegreen4")
 
 subgraph(theta.graphs$MFP.ICR, unlist(neighborhood(theta.graphs$MFP.ICR, nodes = "mmu-miR-23a-3p"))) |> myplot("coral4")
+
+
+
+# mfp miR-23a-3p
+
+subgraph(theta.graphs$Blood.AL, unlist(neighborhood(theta.graphs$Blood.AL, nodes = "mmu-miR-144-3p"))) |> myplot("cadetblue4")
+
+subgraph(theta.graphs$Blood.CCR, unlist(neighborhood(theta.graphs$Blood.CCR, nodes = "mmu-miR-144-3p"))) |> myplot("darkolivegreen4")
+
+graph_from_literal("mmu-miR-144-3p") |> myplot("coral4")
 
 
 dev.off()
