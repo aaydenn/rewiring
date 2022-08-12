@@ -1,5 +1,7 @@
 library(ggplot2)
 library(ggpubr)
+library(patchwork)
+
 
 load("result/theta_delta.RData")
 
@@ -61,7 +63,10 @@ ggsave(p1, filename = "figures/theta.centrality.mfp.png",
   units = "in", width = 8, height = 5, dpi = 300)
 
 
+# for manuscript
 
+((p/p1)+plot_annotation(tag_levels = "A")) |> 
+  ggsave(filename = "degree_manuscript.png",width = 8,height = 8,units = "in",dpi = 320)
 
 
 #' plotting centrality for delta

@@ -2,7 +2,12 @@ library(igraph)
 library(stringr)
 library(graphlayouts)
 
-load("result/fgl.RData")
+
+load("result/theta_delta.RData")
+
+
+
+# make a color palette for each node based on eigenvector cent.
 
 make.palette <- function(net,centrality,col1="white",col2="darkblue"){
   palette <- colorRampPalette(c(col1,col2))
@@ -12,7 +17,13 @@ make.palette <- function(net,centrality,col1="white",col2="darkblue"){
   palette(res)[as.numeric(cut(vector, breaks = res))]
 }
 
-colors <- lapply(theta.graphs, function(x) make.palette(x,eigen_centrality(x)$vector))
+
+
+# add a color vector for each network
+
+colors <- lapply(theta.graphs, function(x) {
+  make.palette(x,eigen_centrality(x)$vector)
+  })
 
 
 
@@ -49,8 +60,24 @@ V(theta.graphs$MFP.ICR)$size <- eigen_centrality(theta.graphs$MFP.ICR)$vector
 #      vertex.size = V(g)$size*5,
 #      vertex.color=V(g)$color,vertex.label.color="black")
 
+
+
+# make clusters and seperate each cluster to draw
+
+theta.cl <- function(theta) {
+  
+  cl <- cluster_louvain(theta)
+  delete_edges(theta, E(theta)[crossing(cl, theta)])
+  
+}
+
+cls <- lapply(theta.graphs, theta.cl)
+
+
 #' ----------------------------------------
 #' Blood coexpression network visualization
+
+
 
 png(filename = "figures/theta.blood.al.png", width = 8, height = 8, units = "in", res = 320)
 plot(
@@ -151,3 +178,119 @@ plot(
   main = "ICR"
 )
 dev.off()
+
+
+
+#' -------------
+#' plot clusters
+
+
+
+# blood
+
+
+svg(filename = "figures/theta.blood.al.svg", width = 8, height = 8)
+plot(
+  cls$Blood.AL, 
+  vertex.label.cex = 0.75,
+  # vertex.label = NA,
+  vertex.size = eigen_centrality(theta.graphs$Blood.AL)$vector*5,
+  vertex.color = alpha(colors$Blood.AL,0.85), 
+  vertex.label.color = "black",
+  vertex.label.dist = 0.5,
+  edge.width = 0.75
+  # edge.color = alpha("grey32",0.75),
+  # layout = as.matrix(graphlayouts::layout_igraph_stress(theta.graphs$Blood.AL)[,c(1,2)]),
+  # main = "AL"
+)
+dev.off()
+
+
+svg(filename = "figures/theta.blood.ccr.svg", width = 8, height = 8)
+plot(
+  cls$Blood.CCR, 
+  vertex.label.cex = 0.75,
+  # vertex.label = NA,
+  vertex.size = eigen_centrality(theta.graphs$Blood.CCR)$vector*5,
+  vertex.color = alpha(colors$Blood.CCR,0.85), 
+  vertex.label.color = "black",
+  vertex.label.dist = 0.5,
+  edge.width = 0.75
+  # edge.color = alpha("grey32",0.75),
+  # layout = as.matrix(graphlayouts::layout_igraph_stress(theta.graphs$Blood.AL)[,c(1,2)]),
+  # main = "AL"
+)
+dev.off()
+
+
+svg(filename = "figures/theta.blood.icr.svg", width = 8, height = 8)
+plot(
+  cls$Blood.ICR, 
+  vertex.label.cex = 0.75,
+  # vertex.label = NA,
+  vertex.size = eigen_centrality(theta.graphs$Blood.ICR)$vector*5,
+  vertex.color = alpha(colors$Blood.ICR,0.85), 
+  vertex.label.color = "black",
+  vertex.label.dist = 0.5,
+  edge.width = 0.75
+  # edge.color = alpha("grey32",0.75),
+  # layout = as.matrix(graphlayouts::layout_igraph_stress(theta.graphs$Blood.AL)[,c(1,2)]),
+  # main = "AL"
+)
+dev.off()
+
+
+
+# MFP
+
+
+svg(filename = "figures/theta.mfp.al.svg", width = 8, height = 8)
+plot(
+  cls$MFP.AL, 
+  vertex.label.cex = 0.75,
+  # vertex.label = NA,
+  vertex.size = eigen_centrality(theta.graphs$MFP.AL)$vector*5,
+  vertex.color = alpha(colors$MFP.AL,0.85), 
+  vertex.label.color = "black",
+  vertex.label.dist = 0.5,
+  edge.width = 0.75
+  # edge.color = alpha("grey32",0.75),
+  # layout = as.matrix(graphlayouts::layout_igraph_stress(theta.graphs$MFP.AL)[,c(1,2)]),
+  # main = "AL"
+)
+dev.off()
+
+
+svg(filename = "figures/theta.mfp.ccr.svg", width = 8, height = 8)
+plot(
+  cls$MFP.CCR, 
+  vertex.label.cex = 0.75,
+  # vertex.label = NA,
+  vertex.size = eigen_centrality(theta.graphs$MFP.CCR)$vector*5,
+  vertex.color = alpha(colors$MFP.CCR,0.85), 
+  vertex.label.color = "black",
+  vertex.label.dist = 0.5,
+  edge.width = 0.75
+  # edge.color = alpha("grey32",0.75),
+  # layout = as.matrix(graphlayouts::layout_igraph_stress(theta.graphs$MFP.AL)[,c(1,2)]),
+  # main = "AL"
+)
+dev.off()
+
+
+svg(filename = "figures/theta.mfp.icr.svg", width = 8, height = 8)
+plot(
+  cls$MFP.ICR, 
+  vertex.label.cex = 0.75,
+  # vertex.label = NA,
+  vertex.size = eigen_centrality(theta.graphs$MFP.ICR)$vector*5,
+  vertex.color = alpha(colors$MFP.ICR,0.85), 
+  vertex.label.color = "black",
+  vertex.label.dist = 0.5,
+  edge.width = 0.75
+  # edge.color = alpha("grey32",0.75),
+  # layout = as.matrix(graphlayouts::layout_igraph_stress(theta.graphs$MFP.AL)[,c(1,2)]),
+  # main = "AL"
+)
+dev.off()
+

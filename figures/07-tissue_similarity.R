@@ -9,6 +9,7 @@ load("G:/Drive'ım/CR-miRNA/Data/full.Data.RData")
 colnames(mouse.Data) <- toupper(colnames(mouse.Data))
 colnames(mouse.Data) <- gsub("ICRR|ICRRF", "ICR", colnames(mouse.Data))
 
+size <- 12
 
 # Correlations
 
@@ -22,7 +23,7 @@ as.data.frame(mouse.Data) |>
             ylab = "MFP of AL fed mice",
             ggtheme = theme_bw(),
             color	= alpha("black", 0.5)) + 
-  theme(text=element_text(size = 18)) -> p1
+  theme(text=element_text(size = size)) -> p1
 
 ggsave(p1, file = "figures/same_animal_T95_AL.png", width = 8, height = 8, units = "in", dpi = 300)
 
@@ -35,8 +36,8 @@ as.data.frame(mouse.Data) |>
             xlab = "MFP of AL fed mice", 
             ylab = "MFP of CCR fed mice",
             ggtheme = theme_bw(),
-            color	= alpha("black", 0.5)
-  ) + theme(text=element_text(size = 14)) -> p2
+            color	= alpha("black", 0.5)) + 
+  theme(text=element_text(size = size)) -> p2
 
 ggsave(p2, file = "figures/same_diet_T95_T106_mfp.png", width = 8, height = 8, units = "in", dpi = 300)
 
@@ -49,7 +50,8 @@ as.data.frame(mouse.Data) |>
             xlab = "Blood of AL fed mice", 
             ylab = "Blood of CCR fed mice",
             ggtheme = theme_bw(),
-            color	= alpha("black", 0.5)) + theme(text=element_text(size = 14)) -> p3
+            color	= alpha("black", 0.5)) + 
+  theme(text=element_text(size = size)) -> p3
 
 ggsave(p3,file = "figures/same_diet_T95_T106_blood.png", width = 8, height = 8, units = "in", dpi = 300)
 
@@ -121,7 +123,7 @@ p01 <- ggplot(dataGGraw, aes(PC1, PC2)) +
     legend.key.height = unit(0.1,"in"),
     legend.key.size = unit(0.1,"in"),
     # every text element
-    text = element_text(size = 15))
+    text = element_text(size = size))
 
 
 ggsave("figures/pca_raw.png", p01, units = "in", width = 8, height = 8, dpi = 300)
@@ -132,7 +134,13 @@ ggsave("figures/pca_raw.png", p01, units = "in", width = 8, height = 8, dpi = 30
 
 
 exp_norm0 <- Biobase::exprs(eset)
+
+rownames(features) <- colnames(exp_norm0)
+
+keep <- features[features$tissue != "Brain", ]
+
 exp_norm <- exp_norm0[,rownames(keep)]
+
 
 
 PCA_norm <- prcomp(t(exp_norm), scale. = FALSE)
@@ -149,7 +157,7 @@ dataGGnorm <- data.frame(PC1 = PCA_norm$x[,1], PC2 = PCA_norm$x[,2],
 
 p02 <- ggplot(dataGGnorm, aes(PC1, PC2)) + 
   geom_point(aes(colour = Tissue,
-             shape  = Diet), size = 5) + 
+             shape  = Diet), size = 3) + 
   xlab(paste0("PC1, VarExp: ", percentVarNorm[1], "%")) +
   ylab(paste0("PC2, VarExp: ", percentVarNorm[2], "%")) +
   scale_color_manual(values = c("salmon2", "royalblue2")) + 
@@ -163,6 +171,11 @@ p02 <- ggplot(dataGGnorm, aes(PC1, PC2)) +
     legend.key.height = unit(0.1,"in"),
     legend.key.size = unit(0.1,"in"),
     # every text element
-    text = element_text(size = 15))
+    text = element_text(size = size))
 
 ggsave("figures/pca_norm.png", p02, units = "in", width = 8, height = 8, dpi = 300)
+
+
+# for manuscript
+# ((p1 + p02 + p2 + p3) + plot_annotation(tag_levels = 'A')) |> 
+#   ggsave(filename = "similarity_manuscript.png", width = 8, height = 8, dpi = 320)

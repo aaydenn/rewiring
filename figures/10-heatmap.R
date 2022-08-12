@@ -40,7 +40,7 @@ colour = list(
   Diet = c(BASELINE = "plum1", AL = "plum3", CCR = "violetred1", ICR = "violetred4")
 )
 
-png(filename = "figures/heatmap.png", 8, 5, units = "in", res = 320)
+png(filename = "figures/heatmap0.png", 4, 8, units = "in", res = 320)
 pheatmap(arrays, show_colnames = F,
          show_rownames = F,
          annotation_col = df, 

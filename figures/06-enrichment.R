@@ -3,7 +3,7 @@ library(dplyr)
 library(patchwork)
 library(stringr)
 
-load("result/fgl.RData")
+load("result/theta_delta.RData")
 load("result/diff.rank.eigen.RData")
 load("result/targets.Rdata")
 load("data/go_kegg_list.RData")
@@ -142,6 +142,19 @@ p4 <- (diff.rank.eigen.go.plot$diff.rank.MFP.CCR.AL +
 
 ggsave(filename = "figures/diff.rank.go.mfp.png", plot = p4, 
        width = 8, height = 5, units = "in",dpi = 300)
+
+
+
+# for manuscript
+
+(
+  ((diff.rank.eigen.go.plot$diff.rank.Blood.CCR.AL + labs(subtitle = "CCR vs AL", x = "GO term (BP)")) + 
+  (diff.rank.eigen.go.plot$diff.rank.Blood.ICR.AL + labs(subtitle = "ICR vs AL")) +
+    (diff.rank.eigen.go.plot$diff.rank.MFP.CCR.AL + labs(x = "GO term (BP)", y = "-log(adj p-val)")) + 
+      (diff.rank.eigen.go.plot$diff.rank.MFP.ICR.AL + labs(y = "-log(adj p-val)"))) + 
+        plot_annotation(tag_levels = "A")
+) |> 
+  ggsave(filename = "figures/diff.rank.go.png", width = 8, height = 8, units = "in", dpi = 320)
 
 
 
