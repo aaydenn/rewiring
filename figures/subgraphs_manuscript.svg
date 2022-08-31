@@ -44,8 +44,8 @@
      id="namedview3430"
      showgrid="false"
      inkscape:zoom="2.7462293"
-     inkscape:cx="384"
-     inkscape:cy="638.96967"
+     inkscape:cx="571.2734"
+     inkscape:cy="202.00689"
      inkscape:window-x="-9"
      inkscape:window-y="-9"
      inkscape:window-maximized="1"
@@ -10318,13 +10318,17 @@
     </g>
     <path
        style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#8a3d2e;stroke-opacity:1"
-       d="m 445.81641,469.05469 c 0,4.72265 -7.08204,4.72265 -7.08204,0 0,-4.72266 7.08204,-4.72266 7.08204,0"
+       d="m 498.79815,471.51261 c 0,4.72265 -7.08204,4.72265 -7.08204,0 0,-4.72266 7.08204,-4.72266 7.08204,0"
        id="path3403"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
     <g
        style="fill:#000000;fill-opacity:1"
        id="g3425"
-       transform="translate(3.6316642,-58.738221)">
+       transform="translate(56.613402,-56.280305)"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
       <use
          xlink:href="#glyph0-1"
          x="422.91797"
